@@ -6,7 +6,7 @@ services:
     container_name: dr-notif-frontend
     restart: unless-stopped
     ports:
-      - "8081:80"
+      - "8082:80"
     networks:
       - dr-notif-network
     logging:

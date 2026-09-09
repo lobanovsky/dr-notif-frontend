@@ -32,7 +32,7 @@ js/
 dev/Caddyfile       — локальный запуск (:3000 → бэкенд на 127.0.0.1:8080)
 deploy/Caddyfile    — прод-конфиг (копируется в образ)
 Dockerfile          — caddy:2.11-alpine, без сборки
-docker-compose.yml  — сервис frontend, порт 8081, сеть dr-notif-network
+docker-compose.yml  — сервис frontend, порт 8082, сеть dr-notif-network
 ```
 
 ## Переменные окружения
