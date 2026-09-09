@@ -1,6 +1,6 @@
 import { test, describe } from 'node:test';
 import assert from 'node:assert/strict';
-import { formatDate } from './format.js';
+import { formatDate, formatDateTime } from './format.js';
 
 describe('formatDate', () => {
   test('converts YYYY-MM-DD to DD.MM.YYYY', () => {
@@ -14,5 +14,26 @@ describe('formatDate', () => {
   test('handles empty/undefined input', () => {
     assert.equal(formatDate(''), '');
     assert.equal(formatDate(undefined), '');
+  });
+});
+
+describe('formatDateTime', () => {
+  test('formats a local (no offset) ISO timestamp as DD.MM.YYYY HH:MM', () => {
+    // Без "Z"/смещения — Date интерпретирует строку как локальное время, так что
+    // и запись, и чтение компонентов используют одну и ту же таймзону теста.
+    assert.equal(formatDateTime('2026-09-08T09:05:00'), '08.09.2026 09:05');
+  });
+
+  test('pads single-digit day/month/hour/minute', () => {
+    assert.equal(formatDateTime('2026-01-02T03:04:00'), '02.01.2026 03:04');
+  });
+
+  test('handles empty input', () => {
+    assert.equal(formatDateTime(''), '');
+    assert.equal(formatDateTime(undefined), '');
+  });
+
+  test('passes through an unparseable timestamp unchanged', () => {
+    assert.equal(formatDateTime('not-a-timestamp'), 'not-a-timestamp');
   });
 });

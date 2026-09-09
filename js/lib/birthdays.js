@@ -73,3 +73,17 @@ export function groupByMonth(items, getBirthDate = (item) => item.birth_date) {
 
   return groups.map((g) => ({ month: g.month, label: g.label, items: g.entries.map((e) => e.item) }));
 }
+
+// Летние месяцы (июнь–август) — школа поздравляет таких учеников отдельно
+// 3 сентября (см. dr-notif-backend/internal/scheduler, notifySummerBatch),
+// т.к. в реальную дату ДР они на каникулах. month — число 1-12.
+export function isSummerMonth(month) {
+  return month === 6 || month === 7 || month === 8;
+}
+
+// То же самое, но принимает дату рождения напрямую ("YYYY-MM-DD"), как её
+// отдаёт API — удобно там, где нет отдельно посчитанного номера месяца.
+export function isSummerBirthDate(birthDateIso) {
+  const match = /^\d{4}-(\d{2})-\d{2}/.exec(birthDateIso || '');
+  return match ? isSummerMonth(Number(match[1])) : false;
+}

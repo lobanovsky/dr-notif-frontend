@@ -23,3 +23,11 @@ export function block(id) {
 export function unblock(id) {
   return client.post(`/admin/students/${id}/unblock`);
 }
+
+export function sendReminder(id) {
+  return client.post(`/admin/students/${id}/send-reminder`);
+}
+
+export function notifications(id) {
+  return client.get(`/admin/students/${id}/notifications`);
+}

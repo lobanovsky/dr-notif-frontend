@@ -7,7 +7,7 @@ import * as classesApi from '../../api/classes.js';
 import * as adminApi from '../../api/admin.js';
 import { studentFullName } from '../students/studentFields.js';
 import { formatDate } from '../../lib/format.js';
-import { daysUntilNextBirthday, formatDaysUntil, groupByMonth } from '../../lib/birthdays.js';
+import { daysUntilNextBirthday, formatDaysUntil, groupByMonth, isSummerMonth } from '../../lib/birthdays.js';
 
 function daysBadge(days) {
   const label = formatDaysUntil(days);
@@ -30,7 +30,11 @@ function renderMonthCard(group, classById) {
     ])))
     : el('p', { class: 'month-card-empty' }, 'Никого');
 
-  return el('div', { class: 'month-card' }, [
+  // Летние месяцы подсвечиваем — их дни рождения поздравляются одним махом
+  // 3 сентября (см. notifySummerBatch на бэкенде), а не в реальную дату.
+  const cardClass = isSummerMonth(group.month) ? 'month-card month-card--summer' : 'month-card';
+
+  return el('div', { class: cardClass }, [
     el('div', { class: 'month-card-header' }, [
       el('h3', {}, group.label),
       el('span', { class: 'month-card-count' }, String(group.items.length)),
@@ -101,6 +105,7 @@ export async function dashboardPage(container) {
       upcomingHeader,
       upcomingTable,
       el('h2', { class: 'dashboard-section-title' }, 'Дни рождения по месяцам'),
+      el('p', { class: 'field-help' }, 'Летние месяцы (июнь–август) выделены: таких учеников школа поздравляет одним сообщением 3 сентября, а не в саму дату ДР.'),
       monthGrid,
     ]),
   );

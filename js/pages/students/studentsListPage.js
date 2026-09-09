@@ -7,6 +7,7 @@ import * as studentsApi from '../../api/students.js';
 import * as classesApi from '../../api/classes.js';
 import { studentFullName } from './studentFields.js';
 import { formatDate } from '../../lib/format.js';
+import { isSummerBirthDate } from '../../lib/birthdays.js';
 
 export async function studentsListPage(container) {
   const [students, classes] = await Promise.all([studentsApi.list(), classesApi.list()]);
@@ -21,7 +22,24 @@ export async function studentsListPage(container) {
     const badges = [];
     if (row.is_blocked) badges.push(el('span', { class: 'badge badge-danger' }, 'Заблокирован'));
     if (!row.notifications_enabled) badges.push(el('span', { class: 'badge badge-neutral' }, 'Уведомления выкл.'));
+    if (isSummerBirthDate(row.birth_date)) badges.push(el('span', { class: 'badge badge-warning' }, 'Летний ДР'));
     return badges.length > 0 ? el('span', {}, badges.map((b, i) => (i > 0 ? [' ', b] : b))) : '';
+  }
+
+  async function handleSendReminder(row) {
+    const confirmed = await confirmDialog({
+      title: 'Отправить тестовое уведомление?',
+      message: `В чат класса «${classById.get(row.class_id)?.name || '—'}» уйдёт настоящее сообщение в Telegram (помечено как тест) для проверки доставки для «${studentFullName(row)}». Продолжить?`,
+      confirmLabel: 'Отправить',
+    });
+    if (!confirmed) return;
+
+    try {
+      const result = await studentsApi.sendReminder(row.id);
+      toast.success(`Отправлено: «${result.message}»`);
+    } catch (err) {
+      toast.error((err instanceof ApiError && err.message) || 'Не удалось отправить уведомление');
+    }
   }
 
   async function handleToggleBlock(row) {
@@ -48,9 +66,9 @@ export async function studentsListPage(container) {
   function filteredRows() {
     const q = searchQuery.trim().toLowerCase();
     return students.filter((s) => {
-      if (classFilter && String(s.class_id) !== classFilter) return false;
-      if (q && !studentFullName(s).toLowerCase().includes(q)) return false;
-      return true;
+      const matchesClass = !classFilter || String(s.class_id) === classFilter;
+      const matchesSearch = !q || studentFullName(s).toLowerCase().includes(q);
+      return matchesClass && matchesSearch;
     });
   }
 
@@ -66,6 +84,7 @@ export async function studentsListPage(container) {
         rows: filteredRows(),
         rowActions: (row) => el('span', { class: 'row-actions' }, [
           el('a', { href: `/students/${row.id}/edit`, class: 'btn btn-ghost' }, 'Изменить'),
+          el('button', { type: 'button', class: 'btn btn-ghost', onclick: () => handleSendReminder(row) }, 'Отправить напоминание'),
           el('button', { type: 'button', class: 'btn btn-ghost', onclick: () => handleToggleBlock(row) }, row.is_blocked ? 'Разблокировать' : 'Заблокировать'),
         ]),
         emptyMessage: 'Ученики не найдены',

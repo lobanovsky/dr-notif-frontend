@@ -1,6 +1,6 @@
 import { test, describe } from 'node:test';
 import assert from 'node:assert/strict';
-import { daysUntilNextBirthday, formatDaysUntil, groupByMonth, MONTH_NAMES } from './birthdays.js';
+import { daysUntilNextBirthday, formatDaysUntil, groupByMonth, MONTH_NAMES, isSummerMonth, isSummerBirthDate } from './birthdays.js';
 
 function daysBetween(a, b) {
   return Math.round((b.getTime() - a.getTime()) / 86400000);
@@ -86,6 +86,36 @@ describe('groupByMonth', () => {
     const students = [{ name: 'Аня', dob: '2015-07-04' }];
     const groups = groupByMonth(students, (s) => s.dob);
     assert.deepEqual(groups[6].items.map((s) => s.name), ['Аня']); // июль — индекс 6
+  });
+});
+
+describe('isSummerMonth', () => {
+  test('июнь, июль, август — летние', () => {
+    assert.equal(isSummerMonth(6), true);
+    assert.equal(isSummerMonth(7), true);
+    assert.equal(isSummerMonth(8), true);
+  });
+
+  test('остальные месяцы — нет', () => {
+    assert.equal(isSummerMonth(5), false);
+    assert.equal(isSummerMonth(9), false);
+    assert.equal(isSummerMonth(1), false);
+    assert.equal(isSummerMonth(12), false);
+  });
+});
+
+describe('isSummerBirthDate', () => {
+  test('распознаёт летнюю дату рождения', () => {
+    assert.equal(isSummerBirthDate('2016-07-19'), true);
+  });
+
+  test('нелетняя дата — false', () => {
+    assert.equal(isSummerBirthDate('2016-09-19'), false);
+  });
+
+  test('нераспознанная дата — false', () => {
+    assert.equal(isSummerBirthDate('not-a-date'), false);
+    assert.equal(isSummerBirthDate(''), false);
   });
 });
 

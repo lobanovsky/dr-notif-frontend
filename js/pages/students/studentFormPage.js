@@ -1,11 +1,15 @@
 import { el } from '../../lib/dom.js';
 import { createForm } from '../../ui/form.js';
+import { renderTable } from '../../ui/table.js';
 import { toast } from '../../ui/toast.js';
+import { ApiError } from '../../api/client.js';
 import { applyFormApiError } from '../../lib/apiErrors.js';
 import { goTo } from '../../state/nav.js';
 import * as studentsApi from '../../api/students.js';
 import * as classesApi from '../../api/classes.js';
 import { studentFieldsFactory, studentToFormValues, emptyStudentFormValues, studentValuesToPayload } from './studentFields.js';
+import { notificationKindLabel } from '../../lib/notificationKinds.js';
+import { formatDateTime } from '../../lib/format.js';
 
 export function newStudentPage(container) {
   return renderStudentForm(container, { mode: 'create' });
@@ -47,5 +51,31 @@ async function renderStudentForm(container, { mode, id }) {
   });
 
   const header = el('h1', {}, mode === 'edit' ? 'Редактирование ученика' : 'Новый ученик');
-  container.replaceChildren(el('div', { class: 'page' }, [header, form.element]));
+  const sections = [header, form.element];
+  if (mode === 'edit') sections.push(await renderNotificationHistory(id));
+
+  container.replaceChildren(el('div', { class: 'page' }, sections));
+}
+
+async function renderNotificationHistory(id) {
+  const wrapper = el('div', {}, [
+    el('h2', { class: 'dashboard-section-title' }, 'История уведомлений'),
+  ]);
+
+  try {
+    const entries = await studentsApi.notifications(id);
+    wrapper.appendChild(renderTable({
+      columns: [
+        { key: 'sent_at', label: 'Когда', render: (row) => formatDateTime(row.sent_at) },
+        { key: 'kind', label: 'Вид', render: (row) => notificationKindLabel(row.kind) },
+        { key: 'message', label: 'Текст' },
+      ],
+      rows: entries,
+      emptyMessage: 'Уведомлений ещё не было',
+    }));
+  } catch (err) {
+    toast.error((err instanceof ApiError && err.message) || 'Не удалось загрузить историю уведомлений');
+  }
+
+  return wrapper;
 }

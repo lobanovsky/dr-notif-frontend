@@ -353,6 +353,11 @@ textarea:focus {
   padding: var(--space-4);
 }
 
+.month-card--summer {
+  border-color: var(--color-warning);
+  background: var(--color-warning-bg);
+}
+
 .month-card-header {
   display: flex;
   align-items: baseline;

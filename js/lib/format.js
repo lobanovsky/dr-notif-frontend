@@ -7,3 +7,13 @@ export function formatDate(isoDate) {
   const [, year, month, day] = match;
   return `${day}.${month}.${year}`;
 }
+
+// Для меток времени вида sent_at/created_at — RFC3339 от бэкенда (time.RFC3339
+// в Go) — показываем "ДД.ММ.ГГГГ ЧЧ:ММ" в локальном времени браузера.
+export function formatDateTime(isoDateTime) {
+  if (!isoDateTime) return '';
+  const date = new Date(isoDateTime);
+  if (Number.isNaN(date.getTime())) return isoDateTime;
+  const pad = (n) => String(n).padStart(2, '0');
+  return `${pad(date.getDate())}.${pad(date.getMonth() + 1)}.${date.getFullYear()} ${pad(date.getHours())}:${pad(date.getMinutes())}`;
+}
