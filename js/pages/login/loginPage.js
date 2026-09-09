@@ -1,6 +1,7 @@
 import { el } from '../../lib/dom.js';
 import { login } from '../../api/auth.js';
 import { ApiError } from '../../api/client.js';
+import { config } from '../../config.js';
 
 export function renderLoginPage(container, { onSuccess } = {}) {
   let submitting = false;
@@ -40,7 +41,7 @@ export function renderLoginPage(container, { onSuccess } = {}) {
   }
 
   const form = el('form', { class: 'login-form', onsubmit: handleSubmit }, [
-    el('h1', {}, 'dr-notif'),
+    el('h1', {}, config.appName),
     errorBanner,
     el('div', { class: 'field' }, [el('label', { for: 'login-username' }, 'Логин'), usernameInput]),
     el('div', { class: 'field' }, [el('label', { for: 'login-password' }, 'Пароль'), passwordInput]),

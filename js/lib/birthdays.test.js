@@ -1,6 +1,6 @@
 import { test, describe } from 'node:test';
 import assert from 'node:assert/strict';
-import { daysUntilNextBirthday, formatDaysUntil, groupByMonth, MONTH_NAMES, isSummerMonth, isSummerBirthDate, getSeason, rotateToStartMonth } from './birthdays.js';
+import { daysUntilNextBirthday, formatDaysUntil, groupByMonth, MONTH_NAMES, isSummerMonth, isSummerBirthDate, getSeason, getBirthDateSeason, rotateToStartMonth, SEASONS } from './birthdays.js';
 
 function daysBetween(a, b) {
   return Math.round((b.getTime() - a.getTime()) / 86400000);
@@ -142,6 +142,29 @@ describe('getSeason', () => {
     assert.equal(getSeason(9), 'autumn');
     assert.equal(getSeason(10), 'autumn');
     assert.equal(getSeason(11), 'autumn');
+  });
+});
+
+describe('getBirthDateSeason', () => {
+  test('returns the season for each part of the year', () => {
+    assert.equal(getBirthDateSeason('2015-01-10'), 'winter');
+    assert.equal(getBirthDateSeason('2015-04-10'), 'spring');
+    assert.equal(getBirthDateSeason('2015-07-10'), 'summer');
+    assert.equal(getBirthDateSeason('2015-10-10'), 'autumn');
+  });
+
+  test('returns null for an invalid date or month', () => {
+    assert.equal(getBirthDateSeason('not-a-date'), null);
+    assert.equal(getBirthDateSeason('2015-13-10'), null);
+  });
+
+  test('defines the expected icon and Russian label for every season', () => {
+    assert.deepEqual(SEASONS, {
+      winter: { label: 'Зима', icon: '❄️' },
+      spring: { label: 'Весна', icon: '🌿' },
+      summer: { label: 'Лето', icon: '☀️' },
+      autumn: { label: 'Осень', icon: '🍁' },
+    });
   });
 });
 

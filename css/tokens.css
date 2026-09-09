@@ -14,14 +14,15 @@
   --color-warning: #b7791f;
   --color-warning-bg: #fdf3df;
 
-  /* Сезоны — декоративная раскраска карточек месяца на «Обзоре». Лето
-     использует --color-warning/-bg (тот же акцент, что и бейдж «Летний ДР»). */
+  /* Сезоны — карточки месяцев и компактные плашки в таблицах. */
   --season-winter: #4c6fa5;
   --season-winter-bg: #eaf1fb;
   --season-spring: #3f8f52;
   --season-spring-bg: #eaf7ee;
-  --season-autumn: #b5651d;
-  --season-autumn-bg: #fbeee0;
+  --season-summer: #b7791f;
+  --season-summer-bg: #fff6d8;
+  --season-autumn: #b45309;
+  --season-autumn-bg: #fff0df;
 
   /* Отступы */
   --space-1: 4px;

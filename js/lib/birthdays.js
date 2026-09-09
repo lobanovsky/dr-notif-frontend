@@ -51,6 +51,13 @@ export const MONTH_NAMES = [
   'Июль', 'Август', 'Сентябрь', 'Октябрь', 'Ноябрь', 'Декабрь',
 ];
 
+export const SEASONS = Object.freeze({
+  winter: Object.freeze({ label: 'Зима', icon: '❄️' }),
+  spring: Object.freeze({ label: 'Весна', icon: '🌿' }),
+  summer: Object.freeze({ label: 'Лето', icon: '☀️' }),
+  autumn: Object.freeze({ label: 'Осень', icon: '🍁' }),
+});
+
 // Раскладывает произвольные записи с датой рождения ("YYYY-MM-DD") по 12
 // месяцам в календарном порядке (Январь → Декабрь), внутри месяца — по числу
 // по возрастанию. getBirthDate достаёт ISO-дату из элемента (по умолчанию —
@@ -81,6 +88,13 @@ export function getSeason(month) {
   if (month >= 3 && month <= 5) return 'spring';
   if (month >= 6 && month <= 8) return 'summer';
   return 'autumn';
+}
+
+export function getBirthDateSeason(birthDateIso) {
+  const match = /^\d{4}-(\d{2})-\d{2}/.exec(birthDateIso || '');
+  if (!match) return null;
+  const month = Number(match[1]);
+  return month >= 1 && month <= 12 ? getSeason(month) : null;
 }
 
 // Летние месяцы (июнь–август) — школа поздравляет таких учеников отдельно

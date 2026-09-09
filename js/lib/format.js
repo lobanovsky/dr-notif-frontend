@@ -8,6 +8,17 @@ export function formatDate(isoDate) {
   return `${day}.${month}.${year}`;
 }
 
+const RUSSIAN_MONTHS_GENITIVE = [
+  'января', 'февраля', 'марта', 'апреля', 'мая', 'июня',
+  'июля', 'августа', 'сентября', 'октября', 'ноября', 'декабря',
+];
+
+// Полная дата для шапки без зависящего от браузера суффикса «г.».
+export function formatRussianDate(date) {
+  if (!(date instanceof Date) || Number.isNaN(date.getTime())) return '';
+  return `${date.getDate()} ${RUSSIAN_MONTHS_GENITIVE[date.getMonth()]} ${date.getFullYear()}`;
+}
+
 // Для меток времени вида sent_at/created_at — RFC3339 от бэкенда (time.RFC3339
 // в Go) — показываем "ДД.ММ.ГГГГ ЧЧ:ММ" в локальном времени браузера.
 export function formatDateTime(isoDateTime) {

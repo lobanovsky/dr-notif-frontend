@@ -7,7 +7,7 @@ import * as classesApi from '../../api/classes.js';
 import * as adminApi from '../../api/admin.js';
 import { studentFullName } from '../students/studentFields.js';
 import { formatDate } from '../../lib/format.js';
-import { daysUntilNextBirthday, formatDaysUntil, groupByMonth, getSeason, rotateToStartMonth } from '../../lib/birthdays.js';
+import { daysUntilNextBirthday, formatDaysUntil, groupByMonth, getSeason, getBirthDateSeason, rotateToStartMonth, SEASONS } from '../../lib/birthdays.js';
 
 function daysBadge(days) {
   const label = formatDaysUntil(days);
@@ -20,7 +20,19 @@ function dayOfMonth(birthDateIso) {
   return Number(birthDateIso.slice(8, 10));
 }
 
+function seasonBadge(season) {
+  const metadata = SEASONS[season];
+  if (!metadata) return '—';
+  return el('span', {
+    class: `season-badge season-badge--${season}`,
+    role: 'img',
+    'aria-label': metadata.label,
+    title: metadata.label,
+  }, metadata.icon);
+}
+
 function renderMonthCard(group, classById) {
+  const season = getSeason(group.month);
   const items = group.items.length > 0
     ? el('ul', { class: 'month-card-list' }, group.items.map((s) => el('li', { class: 'month-card-item' }, [
       el('span', { class: 'month-card-day' }, String(dayOfMonth(s.birth_date)).padStart(2, '0')),
@@ -34,11 +46,11 @@ function renderMonthCard(group, classById) {
   // раскладке; для лета (июнь-август) она к тому же совпадает с реальным
   // поведением бэкенда — таких учеников поздравляют одним махом 3 сентября
   // (см. notifySummerBatch), а не в реальную дату.
-  const cardClass = `month-card month-card--${getSeason(group.month)}`;
+  const cardClass = `month-card month-card--${season}`;
 
   return el('div', { class: cardClass }, [
     el('div', { class: 'month-card-header' }, [
-      el('h3', {}, group.label),
+      el('div', { class: 'month-card-title' }, [seasonBadge(season), el('h3', {}, group.label)]),
       el('span', { class: 'month-card-count' }, String(group.items.length)),
     ]),
     items,
@@ -62,6 +74,7 @@ export async function dashboardPage(container) {
       { key: 'name', label: 'ФИО', render: (row) => el('a', { href: `/students/${row.id}/edit` }, studentFullName(row)) },
       { key: 'class', label: 'Класс', render: (row) => classById.get(row.class_id)?.name || '—' },
       { key: 'birth_date', label: 'Дата рождения', render: (row) => formatDate(row.birth_date) },
+      { key: 'season', label: 'Сезон', render: (row) => seasonBadge(getBirthDateSeason(row.birth_date)) },
       { key: 'daysUntil', label: 'Когда', render: (row) => daysBadge(row.daysUntil) },
     ],
     rows: upcoming,

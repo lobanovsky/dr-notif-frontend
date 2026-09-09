@@ -1,6 +1,6 @@
 import { test, describe } from 'node:test';
 import assert from 'node:assert/strict';
-import { formatDate, formatDateTime } from './format.js';
+import { formatDate, formatDateTime, formatRussianDate } from './format.js';
 
 describe('formatDate', () => {
   test('converts YYYY-MM-DD to DD.MM.YYYY', () => {
@@ -14,6 +14,17 @@ describe('formatDate', () => {
   test('handles empty/undefined input', () => {
     assert.equal(formatDate(''), '');
     assert.equal(formatDate(undefined), '');
+  });
+});
+
+describe('formatRussianDate', () => {
+  test('formats a date with a Russian month in the genitive case', () => {
+    assert.equal(formatRussianDate(new Date(2026, 8, 9)), '9 сентября 2026');
+  });
+
+  test('returns an empty string for an invalid value', () => {
+    assert.equal(formatRussianDate(new Date('invalid')), '');
+    assert.equal(formatRussianDate(undefined), '');
   });
 });
 

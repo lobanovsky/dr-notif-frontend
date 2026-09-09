@@ -334,6 +334,38 @@ textarea:focus {
   justify-content: flex-end;
 }
 
+.season-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border: 1px solid transparent;
+  border-radius: 999px;
+  line-height: 1;
+  cursor: help;
+}
+
+.season-badge--winter {
+  border-color: var(--season-winter);
+  background: var(--season-winter-bg);
+}
+
+.season-badge--spring {
+  border-color: var(--season-spring);
+  background: var(--season-spring-bg);
+}
+
+.season-badge--summer {
+  border-color: var(--season-summer);
+  background: var(--season-summer-bg);
+}
+
+.season-badge--autumn {
+  border-color: var(--season-autumn);
+  background: var(--season-autumn-bg);
+}
+
 /* Рабочий стол: заголовок второй секции и сетка карточек-месяцев */
 
 .dashboard-section-title {
@@ -364,8 +396,8 @@ textarea:focus {
 }
 
 .month-card--summer {
-  border-color: var(--color-warning);
-  background: var(--color-warning-bg);
+  border-color: var(--season-summer);
+  background: var(--season-summer-bg);
 }
 
 .month-card--autumn {
@@ -383,6 +415,12 @@ textarea:focus {
 .month-card-header h3 {
   margin: 0;
   font-size: var(--font-size-base);
+}
+
+.month-card-title {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
 }
 
 .month-card-count {
