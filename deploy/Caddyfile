@@ -1,0 +1,27 @@
+{
+	auto_https off
+}
+
+:80 {
+	# Бэкенд не поддерживает CORS и держит сессию в HttpOnly cookie — рабочий
+	# вариант только один: единый origin для фронтенда и API. Этот Caddy и
+	# есть тот origin — сам он проксирует admin-запросы на dr-notif-backend
+	# внутри docker-сети dr-notif-network.
+	@backend path /admin/* /healthz
+	handle @backend {
+		reverse_proxy dr-notif-backend:8080
+	}
+
+	handle {
+		root * /usr/share/caddy
+
+		# SPA: прямой переход/обновление страницы на клиентском маршруте
+		# (например /students/123/edit) должен отдавать index.html, а не 404 —
+		# роутер сам разберёт path после загрузки. Существующие файлы
+		# (css/js/index.html) отдаются как есть.
+		try_files {path} /index.html
+		file_server
+	}
+
+	encode gzip zstd
+}

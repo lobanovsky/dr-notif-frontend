@@ -1,0 +1,22 @@
+name: dr-notif-frontend
+
+services:
+  frontend:
+    image: ${DOCKER_USERNAME}/dr-notif-frontend:${TAG}
+    container_name: dr-notif-frontend
+    restart: unless-stopped
+    ports:
+      - "8081:80"
+    networks:
+      - dr-notif-network
+    logging:
+      driver: json-file
+      options:
+        max-size: "5m"
+        max-file: "1"
+
+# Сеть создаётся один раз на хосте, вне compose (см. dr-notif-backend/README.md):
+#   docker network create dr-notif-network
+networks:
+  dr-notif-network:
+    external: true

@@ -1,0 +1,14 @@
+:3000
+
+@backend path /admin/* /healthz
+handle @backend {
+	# Без обрезки префикса — Go-роуты сами ждут "/admin/..." и "/healthz".
+	reverse_proxy 127.0.0.1:8080
+}
+
+handle {
+	# root — относительно рабочей директории caddy (repo root), а не этого файла.
+	root * .
+	try_files {path} /index.html
+	file_server
+}
