@@ -2,7 +2,7 @@ import { el } from '../../lib/dom.js';
 import { logout as apiLogout } from '../../api/auth.js';
 
 const NAV_ITEMS = [
-  { href: '/', label: 'Рабочий стол' },
+  { href: '/', label: 'Обзор' },
   { href: '/students', label: 'Ученики' },
   { href: '/classes', label: 'Классы' },
 ];

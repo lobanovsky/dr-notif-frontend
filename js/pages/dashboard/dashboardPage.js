@@ -7,7 +7,7 @@ import * as classesApi from '../../api/classes.js';
 import * as adminApi from '../../api/admin.js';
 import { studentFullName } from '../students/studentFields.js';
 import { formatDate } from '../../lib/format.js';
-import { daysUntilNextBirthday, formatDaysUntil, groupByMonth, isSummerMonth } from '../../lib/birthdays.js';
+import { daysUntilNextBirthday, formatDaysUntil, groupByMonth, getSeason, rotateToStartMonth } from '../../lib/birthdays.js';
 
 function daysBadge(days) {
   const label = formatDaysUntil(days);
@@ -30,9 +30,11 @@ function renderMonthCard(group, classById) {
     ])))
     : el('p', { class: 'month-card-empty' }, 'Никого');
 
-  // Летние месяцы подсвечиваем — их дни рождения поздравляются одним махом
-  // 3 сентября (см. notifySummerBatch на бэкенде), а не в реальную дату.
-  const cardClass = isSummerMonth(group.month) ? 'month-card month-card--summer' : 'month-card';
+  // Раскраска по сезону — декоративная, чтобы легче ориентироваться в годовой
+  // раскладке; для лета (июнь-август) она к тому же совпадает с реальным
+  // поведением бэкенда — таких учеников поздравляют одним махом 3 сентября
+  // (см. notifySummerBatch), а не в реальную дату.
+  const cardClass = `month-card month-card--${getSeason(group.month)}`;
 
   return el('div', { class: cardClass }, [
     el('div', { class: 'month-card-header' }, [
@@ -71,10 +73,11 @@ export async function dashboardPage(container) {
   // в Telegram", а не признак того, что ученика больше нет; для планирования
   // подарков/праздников админу нужен весь список. Заблокированных прячем.
   const activeStudents = students.filter((s) => !s.is_blocked);
+  const monthGroups = rotateToStartMonth(groupByMonth(activeStudents), new Date().getMonth() + 1);
   const monthGrid = el(
     'div',
     { class: 'month-grid' },
-    groupByMonth(activeStudents).map((group) => renderMonthCard(group, classById)),
+    monthGroups.map((group) => renderMonthCard(group, classById)),
   );
 
   const runCheckButton = el(
@@ -97,16 +100,16 @@ export async function dashboardPage(container) {
     'Запустить проверку вручную',
   );
 
-  const upcomingHeader = el('div', { class: 'section-header' }, [el('h2', {}, 'Ближайшие дни рождения'), runCheckButton]);
+  const upcomingHeader = el('div', { class: 'section-header dashboard-section-title' }, [el('h2', {}, 'Ближайшие дни рождения'), runCheckButton]);
 
   container.replaceChildren(
     el('div', { class: 'page' }, [
-      el('h1', {}, 'Рабочий стол'),
+      el('h1', {}, 'Обзор'),
+      el('h2', {}, 'Дни рождения по месяцам'),
+      el('p', { class: 'field-help' }, 'Цвет карточки — по сезону, первой всегда идёт текущий месяц. Летние месяцы (июнь–август) особые: таких учеников школа поздравляет одним сообщением 3 сентября, а не в саму дату ДР.'),
+      monthGrid,
       upcomingHeader,
       upcomingTable,
-      el('h2', { class: 'dashboard-section-title' }, 'Дни рождения по месяцам'),
-      el('p', { class: 'field-help' }, 'Летние месяцы (июнь–август) выделены: таких учеников школа поздравляет одним сообщением 3 сентября, а не в саму дату ДР.'),
-      monthGrid,
     ]),
   );
 }

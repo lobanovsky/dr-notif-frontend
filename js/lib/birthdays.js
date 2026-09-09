@@ -74,11 +74,29 @@ export function groupByMonth(items, getBirthDate = (item) => item.birth_date) {
   return groups.map((g) => ({ month: g.month, label: g.label, items: g.entries.map((e) => e.item) }));
 }
 
+// Сезон по номеру месяца (1-12) — для декоративной раскраски карточек месяца
+// на «Обзоре». Зима охватывает границу года (дек-янв-фев).
+export function getSeason(month) {
+  if (month === 12 || month === 1 || month === 2) return 'winter';
+  if (month >= 3 && month <= 5) return 'spring';
+  if (month >= 6 && month <= 8) return 'summer';
+  return 'autumn';
+}
+
 // Летние месяцы (июнь–август) — школа поздравляет таких учеников отдельно
 // 3 сентября (см. dr-notif-backend/internal/scheduler, notifySummerBatch),
 // т.к. в реальную дату ДР они на каникулах. month — число 1-12.
 export function isSummerMonth(month) {
-  return month === 6 || month === 7 || month === 8;
+  return getSeason(month) === 'summer';
+}
+
+// Переставляет уже сгруппированные по месяцам записи (см. groupByMonth) так,
+// чтобы первым шёл startMonth (1-12), а не всегда январь — используется на
+// «Обзоре», чтобы первой показывалась карточка текущего месяца.
+export function rotateToStartMonth(groups, startMonth) {
+  const startIndex = groups.findIndex((g) => g.month === startMonth);
+  if (startIndex <= 0) return groups;
+  return [...groups.slice(startIndex), ...groups.slice(0, startIndex)];
 }
 
 // То же самое, но принимает дату рождения напрямую ("YYYY-MM-DD"), как её

@@ -353,9 +353,24 @@ textarea:focus {
   padding: var(--space-4);
 }
 
+.month-card--winter {
+  border-color: var(--season-winter);
+  background: var(--season-winter-bg);
+}
+
+.month-card--spring {
+  border-color: var(--season-spring);
+  background: var(--season-spring-bg);
+}
+
 .month-card--summer {
   border-color: var(--color-warning);
   background: var(--color-warning-bg);
+}
+
+.month-card--autumn {
+  border-color: var(--season-autumn);
+  background: var(--season-autumn-bg);
 }
 
 .month-card-header {

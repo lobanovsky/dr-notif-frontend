@@ -7,7 +7,7 @@ import * as studentsApi from '../../api/students.js';
 import * as classesApi from '../../api/classes.js';
 import { studentFullName } from './studentFields.js';
 import { formatDate } from '../../lib/format.js';
-import { isSummerBirthDate } from '../../lib/birthdays.js';
+import { isSummerBirthDate, daysUntilNextBirthday } from '../../lib/birthdays.js';
 
 export async function studentsListPage(container) {
   const [students, classes] = await Promise.all([studentsApi.list(), classesApi.list()]);
@@ -15,6 +15,7 @@ export async function studentsListPage(container) {
 
   let classFilter = '';
   let searchQuery = '';
+  let sortBy = 'birthday';
 
   const tableContainer = el('div');
 
@@ -72,6 +73,13 @@ export async function studentsListPage(container) {
     });
   }
 
+  function sortRows(rows) {
+    if (sortBy === 'name') {
+      return [...rows].sort((a, b) => studentFullName(a).localeCompare(studentFullName(b), 'ru'));
+    }
+    return [...rows].sort((a, b) => daysUntilNextBirthday(a.birth_date) - daysUntilNextBirthday(b.birth_date));
+  }
+
   function renderRows() {
     tableContainer.replaceChildren(
       renderTable({
@@ -81,7 +89,7 @@ export async function studentsListPage(container) {
           { key: 'birth_date', label: 'Дата рождения', render: (row) => formatDate(row.birth_date) },
           { key: 'status', label: 'Статус', render: statusBadges },
         ],
-        rows: filteredRows(),
+        rows: sortRows(filteredRows()),
         rowActions: (row) => el('span', { class: 'row-actions' }, [
           el('a', { href: `/students/${row.id}/edit`, class: 'btn btn-ghost' }, 'Изменить'),
           el('button', { type: 'button', class: 'btn btn-ghost', onclick: () => handleSendReminder(row) }, 'Отправить напоминание'),
@@ -107,9 +115,19 @@ export async function studentsListPage(container) {
     renderRows();
   });
 
+  const sortSelect = el('select', {}, [
+    el('option', { value: 'birthday' }, 'Дата рождения'),
+    el('option', { value: 'name' }, 'ФИО'),
+  ]);
+  sortSelect.addEventListener('change', () => {
+    sortBy = sortSelect.value;
+    renderRows();
+  });
+
   const toolbar = el('div', { class: 'table-toolbar' }, [
     el('div', { class: 'field field--search' }, [el('label', {}, 'Поиск'), searchInput]),
     el('div', { class: 'field' }, [el('label', {}, 'Класс'), classSelect]),
+    el('div', { class: 'field' }, [el('label', {}, 'Сортировка'), sortSelect]),
   ]);
 
   const header = el('div', { class: 'section-header' }, [

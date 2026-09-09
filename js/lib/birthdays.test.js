@@ -1,6 +1,6 @@
 import { test, describe } from 'node:test';
 import assert from 'node:assert/strict';
-import { daysUntilNextBirthday, formatDaysUntil, groupByMonth, MONTH_NAMES, isSummerMonth, isSummerBirthDate } from './birthdays.js';
+import { daysUntilNextBirthday, formatDaysUntil, groupByMonth, MONTH_NAMES, isSummerMonth, isSummerBirthDate, getSeason, rotateToStartMonth } from './birthdays.js';
 
 function daysBetween(a, b) {
   return Math.round((b.getTime() - a.getTime()) / 86400000);
@@ -116,6 +116,51 @@ describe('isSummerBirthDate', () => {
   test('нераспознанная дата — false', () => {
     assert.equal(isSummerBirthDate('not-a-date'), false);
     assert.equal(isSummerBirthDate(''), false);
+  });
+});
+
+describe('getSeason', () => {
+  test('зима: декабрь, январь, февраль', () => {
+    assert.equal(getSeason(12), 'winter');
+    assert.equal(getSeason(1), 'winter');
+    assert.equal(getSeason(2), 'winter');
+  });
+
+  test('весна: март-май', () => {
+    assert.equal(getSeason(3), 'spring');
+    assert.equal(getSeason(4), 'spring');
+    assert.equal(getSeason(5), 'spring');
+  });
+
+  test('лето: июнь-август', () => {
+    assert.equal(getSeason(6), 'summer');
+    assert.equal(getSeason(7), 'summer');
+    assert.equal(getSeason(8), 'summer');
+  });
+
+  test('осень: сентябрь-ноябрь', () => {
+    assert.equal(getSeason(9), 'autumn');
+    assert.equal(getSeason(10), 'autumn');
+    assert.equal(getSeason(11), 'autumn');
+  });
+});
+
+describe('rotateToStartMonth', () => {
+  const groups = groupByMonth([]); // 12 пустых групп в порядке Январь..Декабрь
+
+  test('текущий месяц становится первым', () => {
+    const rotated = rotateToStartMonth(groups, 9);
+    assert.deepEqual(rotated.map((g) => g.month), [9, 10, 11, 12, 1, 2, 3, 4, 5, 6, 7, 8]);
+  });
+
+  test('startMonth = 1 не меняет порядок', () => {
+    const rotated = rotateToStartMonth(groups, 1);
+    assert.deepEqual(rotated.map((g) => g.month), [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]);
+  });
+
+  test('декабрь как первый месяц оборачивает конец года в начало', () => {
+    const rotated = rotateToStartMonth(groups, 12);
+    assert.deepEqual(rotated.map((g) => g.month), [12, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]);
   });
 });
 
