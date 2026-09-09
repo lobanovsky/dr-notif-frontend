@@ -30,14 +30,20 @@ export async function studentsListPage(container) {
   async function handleSendReminder(row) {
     const confirmed = await confirmDialog({
       title: 'Отправить тестовое уведомление?',
-      message: `В чат класса «${classById.get(row.class_id)?.name || '—'}» уйдёт настоящее сообщение в Telegram (помечено как тест) для проверки доставки для «${studentFullName(row)}». Продолжить?`,
+      message: `Во все чаты класса «${classById.get(row.class_id)?.name || '—'}» уйдёт настоящее сообщение в Telegram (помечено как тест) для проверки доставки для «${studentFullName(row)}». Продолжить?`,
       confirmLabel: 'Отправить',
     });
     if (!confirmed) return;
 
     try {
       const result = await studentsApi.sendReminder(row.id);
-      toast.success(`Отправлено: «${result.message}»`);
+      const okCount = result.results.filter((r) => r.ok).length;
+      const total = result.results.length;
+      if (okCount === total) {
+        toast.success(`Отправлено во все чаты (${total}): «${result.message}»`);
+      } else {
+        toast.error(`Доставлено в ${okCount} из ${total} чатов — проверьте настройки класса`);
+      }
     } catch (err) {
       toast.error((err instanceof ApiError && err.message) || 'Не удалось отправить уведомление');
     }

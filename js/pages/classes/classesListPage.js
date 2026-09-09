@@ -20,8 +20,15 @@ export async function classesListPage(container) {
       initialValues,
       onCancel: () => modalHandle.close(),
       onSubmit: async (values) => {
+        let payload;
         try {
-          await submit(classValuesToPayload(values));
+          payload = classValuesToPayload(values);
+        } catch (err) {
+          form.setFieldErrors({ telegram_chat_ids: err.message });
+          return;
+        }
+        try {
+          await submit(payload);
           modalHandle.close();
           await load();
         } catch (err) {
@@ -54,13 +61,22 @@ export async function classesListPage(container) {
     });
   }
 
+  function chatBadges(row) {
+    const ids = row.telegram_chat_ids || [];
+    if (ids.length === 0) return el('span', { class: 'badge badge-danger' }, 'Не настроено');
+    return el('span', {}, ids.map((id, i) => {
+      const badge = el('span', { class: 'badge badge-neutral' }, String(id));
+      return i > 0 ? [' ', badge] : badge;
+    }));
+  }
+
   async function load() {
     const classes = await classesApi.list();
     tableContainer.replaceChildren(
       renderTable({
         columns: [
           { key: 'name', label: 'Класс' },
-          { key: 'telegram_chat_id', label: 'ID Telegram-чата' },
+          { key: 'telegram_chat_ids', label: 'Telegram-чаты', render: chatBadges },
         ],
         rows: classes,
         rowActions: (row) => el('span', { class: 'row-actions' }, [

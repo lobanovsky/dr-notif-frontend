@@ -68,6 +68,7 @@ async function renderNotificationHistory(id) {
       columns: [
         { key: 'sent_at', label: 'Когда', render: (row) => formatDateTime(row.sent_at) },
         { key: 'kind', label: 'Вид', render: (row) => notificationKindLabel(row.kind) },
+        { key: 'chat_id', label: 'Чат' },
         { key: 'message', label: 'Текст' },
       ],
       rows: entries,
