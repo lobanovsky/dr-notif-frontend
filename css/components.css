@@ -334,6 +334,75 @@ textarea:focus {
   justify-content: flex-end;
 }
 
+/* Рабочий стол: заголовок второй секции и сетка карточек-месяцев */
+
+.dashboard-section-title {
+  margin-top: var(--space-6);
+}
+
+.month-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: var(--space-4);
+}
+
+.month-card {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  padding: var(--space-4);
+}
+
+.month-card-header {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  margin-bottom: var(--space-3);
+}
+
+.month-card-header h3 {
+  margin: 0;
+  font-size: var(--font-size-base);
+}
+
+.month-card-count {
+  color: var(--color-text-muted);
+  font-size: var(--font-size-sm);
+}
+
+.month-card-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.month-card-item {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-size: var(--font-size-sm);
+}
+
+.month-card-day {
+  flex: 0 0 auto;
+  min-width: 1.6em;
+  color: var(--color-text-muted);
+  font-variant-numeric: tabular-nums;
+}
+
+.month-card-class {
+  color: var(--color-text-muted);
+}
+
+.month-card-empty {
+  margin: 0;
+  color: var(--color-text-muted);
+  font-size: var(--font-size-sm);
+}
+
 @media (max-width: 768px) {
   input:not([type='checkbox']),
   select {

@@ -45,3 +45,31 @@ function pluralizeDays(n) {
   if ([2, 3, 4].includes(mod10) && ![12, 13, 14].includes(mod100)) return 'дня';
   return 'дней';
 }
+
+export const MONTH_NAMES = [
+  'Январь', 'Февраль', 'Март', 'Апрель', 'Май', 'Июнь',
+  'Июль', 'Август', 'Сентябрь', 'Октябрь', 'Ноябрь', 'Декабрь',
+];
+
+// Раскладывает произвольные записи с датой рождения ("YYYY-MM-DD") по 12
+// месяцам в календарном порядке (Январь → Декабрь), внутри месяца — по числу
+// по возрастанию. getBirthDate достаёт ISO-дату из элемента (по умолчанию —
+// item.birth_date). Разбор даты идёт напрямую из строки, а не через Date —
+// не зависит от часового пояса и не ломается на самой ранней/поздней дате.
+export function groupByMonth(items, getBirthDate = (item) => item.birth_date) {
+  const groups = MONTH_NAMES.map((label, i) => ({ month: i + 1, label, entries: [] }));
+
+  for (const item of items) {
+    const match = /^(\d{4})-(\d{2})-(\d{2})/.exec(getBirthDate(item) || '');
+    if (!match) continue;
+    const month = Number(match[2]);
+    const day = Number(match[3]);
+    groups[month - 1].entries.push({ item, day });
+  }
+
+  for (const group of groups) {
+    group.entries.sort((a, b) => a.day - b.day);
+  }
+
+  return groups.map((g) => ({ month: g.month, label: g.label, items: g.entries.map((e) => e.item) }));
+}

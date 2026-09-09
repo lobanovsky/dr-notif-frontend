@@ -9,12 +9,12 @@ import { toast } from './ui/toast.js';
 import { classesListPage } from './pages/classes/classesListPage.js';
 import { studentsListPage } from './pages/students/studentsListPage.js';
 import { newStudentPage, editStudentPage } from './pages/students/studentFormPage.js';
-import { birthdaysPage } from './pages/birthdays/birthdaysPage.js';
+import { dashboardPage } from './pages/dashboard/dashboardPage.js';
 
 const appRoot = document.getElementById('app');
 
 const routes = [
-  { pattern: '/', mount: birthdaysPage },
+  { pattern: '/', mount: dashboardPage },
   { pattern: '/classes', mount: classesListPage },
   { pattern: '/students', mount: studentsListPage },
   // /new должен идти раньше /:id/edit — роутер отдаёт первый совпавший маршрут.

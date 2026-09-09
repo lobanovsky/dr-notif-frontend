@@ -1,6 +1,6 @@
 import { test, describe } from 'node:test';
 import assert from 'node:assert/strict';
-import { daysUntilNextBirthday, formatDaysUntil } from './birthdays.js';
+import { daysUntilNextBirthday, formatDaysUntil, groupByMonth, MONTH_NAMES } from './birthdays.js';
 
 function daysBetween(a, b) {
   return Math.round((b.getTime() - a.getTime()) / 86400000);
@@ -44,6 +44,48 @@ describe('daysUntilNextBirthday', () => {
 
   test('returns null for an unparseable date', () => {
     assert.equal(daysUntilNextBirthday('not-a-date', new Date(2026, 8, 8)), null);
+  });
+});
+
+describe('groupByMonth', () => {
+  test('returns 12 groups in calendar order, even when empty', () => {
+    const groups = groupByMonth([]);
+    assert.equal(groups.length, 12);
+    assert.deepEqual(groups.map((g) => g.month), [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]);
+    assert.deepEqual(groups.map((g) => g.label), MONTH_NAMES);
+    assert.ok(groups.every((g) => g.items.length === 0));
+  });
+
+  test('places each item into its birth month', () => {
+    const students = [
+      { name: 'Аня', birth_date: '2015-09-08' },
+      { name: 'Боря', birth_date: '2014-01-20' },
+    ];
+    const groups = groupByMonth(students);
+    assert.deepEqual(groups[8].items.map((s) => s.name), ['Аня']); // сентябрь — индекс 8
+    assert.deepEqual(groups[0].items.map((s) => s.name), ['Боря']); // январь — индекс 0
+  });
+
+  test('sorts items within a month by day ascending', () => {
+    const students = [
+      { name: 'Поздний', birth_date: '2015-03-28' },
+      { name: 'Ранний', birth_date: '2014-03-02' },
+      { name: 'Средний', birth_date: '2016-03-15' },
+    ];
+    const groups = groupByMonth(students);
+    assert.deepEqual(groups[2].items.map((s) => s.name), ['Ранний', 'Средний', 'Поздний']);
+  });
+
+  test('skips items with an unparseable date', () => {
+    const students = [{ name: 'Плохая дата', birth_date: 'not-a-date' }];
+    const groups = groupByMonth(students);
+    assert.ok(groups.every((g) => g.items.length === 0));
+  });
+
+  test('accepts a custom getBirthDate accessor', () => {
+    const students = [{ name: 'Аня', dob: '2015-07-04' }];
+    const groups = groupByMonth(students, (s) => s.dob);
+    assert.deepEqual(groups[6].items.map((s) => s.name), ['Аня']); // июль — индекс 6
   });
 });
 
