@@ -95,6 +95,7 @@ jobs:
         with:
           host: ${{ secrets.DEPLOY_HOST_IP }}
           username: ${{ secrets.DEPLOY_HOST_USERNAME }}
+          port: ${{ secrets.DEPLOY_HOST_PORT }}
           key: ${{ secrets.DEPLOY_HOST_KEY }}
           source: ".env.deploy,docker-compose.yml.deploy"
           target: ${{ secrets.DEPLOY_HOST_PROJECT_PATH }}
@@ -104,6 +105,7 @@ jobs:
         with:
           host: ${{ secrets.DEPLOY_HOST_IP }}
           username: ${{ secrets.DEPLOY_HOST_USERNAME }}
+          port: ${{ secrets.DEPLOY_HOST_PORT }}
           key: ${{ secrets.DEPLOY_HOST_KEY }}
           script: |
             set -u
