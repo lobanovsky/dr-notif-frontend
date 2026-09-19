@@ -32,7 +32,7 @@ js/
 dev/Caddyfile       — локальный запуск (:3000 → бэкенд на 127.0.0.1:8080)
 deploy/Caddyfile    — прод-конфиг (копируется в образ)
 Dockerfile          — caddy:2.11-alpine, без сборки
-docker-compose.yml  — сервис frontend, порт 8082, сеть dr-notif-network
+docker-compose.yml  — сервис frontend, сети dr-notif-network и housekpr-network
 ```
 
 ## Переменные окружения
@@ -62,12 +62,19 @@ caddy run --config dev/Caddyfile
 
 ```bash
 docker network create dr-notif-network   # один раз, если сети ещё нет
+docker network inspect housekpr-network  # существующая внешняя сеть Traefik
 cp .env.example .env                     # и подставить свои значения
 docker compose up -d --build
 ```
 `docker-compose.yml` не поднимает `dr-notif-backend` — он должен уже быть запущен и подключён
 к сети `dr-notif-network`, чтобы Caddy внутри контейнера фронтенда мог достучаться до него по
 имени контейнера (`dr-notif-backend:8080`, см. `deploy/Caddyfile`).
+
+Продакшен-адрес: https://bday.lobanovsky.ru. Traefik принимает запросы через внешнюю
+сеть `housekpr-network`, выпускает сертификат через resolver `letsEncrypt` и направляет
+трафик на порт 80 фронтенда. HTTP перенаправляется на HTTPS общей настройкой Traefik.
+Порт 8082 на хосте не публикуется. DNS домена настроен в Cloudflare в режиме DNS only.
+При переходе со старого адреса по IP нужно войти заново.
 
 ## CI/CD и деплой
 

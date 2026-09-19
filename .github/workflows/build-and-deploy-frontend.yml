@@ -111,6 +111,7 @@ jobs:
             echo "${{ secrets.DOCKER_TOKEN }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
 
             docker network inspect dr-notif-network >/dev/null 2>&1 || docker network create dr-notif-network
+            docker network inspect housekpr-network >/dev/null 2>&1 || { echo "Required Traefik network housekpr-network is missing"; exit 1; }
 
             had_previous=false
             if [ -f .env ] && [ -f docker-compose.yml ]; then

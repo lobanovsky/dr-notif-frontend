@@ -5,10 +5,17 @@ services:
     image: ${DOCKER_USERNAME}/dr-notif-frontend:${TAG}
     container_name: dr-notif-frontend
     restart: unless-stopped
-    ports:
-      - "8082:80"
     networks:
       - dr-notif-network
+      - proxy
+    labels:
+      traefik.enable: "true"
+      traefik.docker.network: housekpr-network
+      traefik.http.routers.dr-notif-bday.rule: Host(`bday.lobanovsky.ru`)
+      traefik.http.routers.dr-notif-bday.entrypoints: https
+      traefik.http.routers.dr-notif-bday.tls.certresolver: letsEncrypt
+      traefik.http.routers.dr-notif-bday.service: dr-notif-bday
+      traefik.http.services.dr-notif-bday.loadbalancer.server.port: "80"
     logging:
       driver: json-file
       options:
@@ -18,5 +25,8 @@ services:
 # Сеть создаётся один раз на хосте, вне compose (см. dr-notif-backend/README.md):
 #   docker network create dr-notif-network
 networks:
+  proxy:
+    external: true
+    name: housekpr-network
   dr-notif-network:
     external: true
